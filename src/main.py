@@ -21,7 +21,7 @@ from helpers.helpers_exportacao_relatorio.helper_gerador_de_graficos import cria
 
 for tipo_exportacao in tipos_exportacao:
     if tipo_exportacao == 'diario':
-        print("Exportando dados diario...\n")
+        print("Exportando dados diario...\n") 
     elif tipo_exportacao == 'semanal':
         print("Exportando dados semanal...\n")
     elif tipo_exportacao == 'mensal':
