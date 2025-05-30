@@ -1,14 +1,15 @@
-import matplotlib.pyplot as plt
 import sys
+import pandas as pd 
 from pathlib import Path
 from datetime import datetime, timedelta
 
-hoje = datetime.now()
+quant_dias_p_exportar = 0
+dia_escolhido = datetime.now() - timedelta(days=quant_dias_p_exportar)
 
 tipos_exportacao = ['diario']
-if hoje.weekday() == 4: 
+if dia_escolhido.weekday() == 4: 
     tipos_exportacao.append('semanal')
-if (hoje + timedelta(days=1)).month != hoje.month:
+if (dia_escolhido + timedelta(days=1)).month != dia_escolhido.month:
     tipos_exportacao.append('mensal')
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,13 +21,13 @@ from helpers.helpers_exportacao_relatorio.helper_gerador_de_graficos import cria
 
 for tipo_exportacao in tipos_exportacao:
     if tipo_exportacao == 'diario':
-        print("Exportando dados diario...")
+        print("Exportando dados diario...\n")
     elif tipo_exportacao == 'semanal':
-        print("Exportando dados semanal...")
+        print("Exportando dados semanal...\n")
     elif tipo_exportacao == 'mensal':
-        print("Exportando dados mensais...")
+        print("Exportando dados mensais...\n")
     else:
-        print("Tipo de exportação desconhecido.")
+        print("Tipo de exportação desconhecido.\n==============================\n")
             
     def obter_titulos_por_tipo(tipo_exportacao):
         if tipo_exportacao == 'diario':
@@ -38,29 +39,45 @@ for tipo_exportacao in tipos_exportacao:
         else:
             return 'Subtotal', 'Total'
             
-    inicio_periodo, fim_periodo = dia_p_exportar(tipo_exportacao=tipo_exportacao) 
-
-    nome_arquivo_xlsx = f"carregamentos_{inicio_periodo.strftime('%Y-%m-%d')}_a_{fim_periodo.strftime('%Y-%m-%d')}.xlsx"
-    nome_arquivo_pdf = f"carregamentos_{inicio_periodo.strftime('%Y-%m-%d')}_a_{fim_periodo.strftime('%Y-%m-%d')}.pdf"
-
-    CAMINHO_SAIDA_XLSX = BASE_DIR / "output" / tipo_exportacao / nome_arquivo_xlsx
-    CAMINHO_SAIDA_pdf = BASE_DIR / "output" / tipo_exportacao / nome_arquivo_pdf 
-    caminho_consolidado = BASE_DIR / "data" / "consolidado_viagens.xlsx"
-
-    titulo_subtotal, titulo_total = obter_titulos_por_tipo(tipo_exportacao)
-
-    df_consolidado, df_periodo, inicio_periodo, fim_periodo, total_periodo,arquivo_p_exportar = extrair_carregamentos_generico(
-        inicio_periodo,
-        fim_periodo,
-        titulo_subtotal=titulo_subtotal,
-        titulo_total=titulo_total,
-        arquivo_p_exportar=caminho_consolidado,
-    )
-
-    if df_consolidado is not None:
-        df_consolidado.to_excel(CAMINHO_SAIDA_XLSX, index=False)
-        print(f"Dados do dia anterior salvos em {CAMINHO_SAIDA_XLSX}!")
+    for dias in range(quant_dias_p_exportar + 1):
         
-        criar_grafico_exportacao_carregamentos(
-            df_consolidado, inicio_periodo, fim_periodo, total_periodo, tipo_exportacao=tipo_exportacao,caminho_exportacao=CAMINHO_SAIDA_pdf
-            ) 
+        inicio_periodo, fim_periodo = dia_p_exportar(tipo_exportacao=tipo_exportacao,quant_dias_p_exportar=dias) 
+
+        nome_arquivo_xlsx = f"carregamentos_{inicio_periodo.strftime('%Y-%m-%d')}_a_{fim_periodo.strftime('%Y-%m-%d')}.xlsx"
+        nome_arquivo_pdf = f"carregamentos_{inicio_periodo.strftime('%Y-%m-%d')}_a_{fim_periodo.strftime('%Y-%m-%d')}.pdf"
+
+        CAMINHO_SAIDA_XLSX = BASE_DIR / "output" / tipo_exportacao / "out_xlsx" / nome_arquivo_xlsx
+        CAMINHO_SAIDA_pdf = BASE_DIR / "output" / tipo_exportacao / "out_pdf" / nome_arquivo_pdf 
+        caminho_consolidado = BASE_DIR / "data" / "consolidado_viagens.xlsx"
+
+        titulo_subtotal, titulo_total = obter_titulos_por_tipo(tipo_exportacao)
+
+        df_consolidado, df_periodo, inicio_periodo, fim_periodo, total_periodo,arquivo_p_exportar = extrair_carregamentos_generico(
+            inicio_periodo,
+            fim_periodo,
+            titulo_subtotal=titulo_subtotal,
+            arquivo_p_exportar=caminho_consolidado,
+            titulo_total=titulo_total,
+        )
+
+        #Criação de tabela de dados do excel;
+        if df_consolidado is not None:
+            colunas_monetarias = [
+                'Valor da Viagem',
+                'Custo com Transporte',
+                'Receita Final',
+                'Lucro Líquido Unitário (Média)'
+            ]
+            
+            for coluna in colunas_monetarias:
+                if coluna in df_consolidado.columns:
+                    df_consolidado[coluna] = df_consolidado[coluna].apply(
+                        lambda x: f"R$ {x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".") if pd.notnull(x) else x
+                    )
+            
+            criar_grafico_exportacao_carregamentos(
+                df_consolidado, inicio_periodo, fim_periodo, total_periodo, tipo_exportacao=tipo_exportacao,caminho_exportacao=CAMINHO_SAIDA_pdf
+                ) 
+
+            df_consolidado.to_excel(CAMINHO_SAIDA_XLSX, index=False)
+            print(f"\nDados do dia anterior salvos em {CAMINHO_SAIDA_XLSX}!\n===============================\n")
