@@ -1,6 +1,0 @@
-output/ 
-data/ 
-.venv/ 
-.vscode/ 
-.gitignore 
-logs.txt 
