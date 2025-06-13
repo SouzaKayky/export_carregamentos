@@ -3,11 +3,11 @@ import pandas as pd
 from pathlib import Path
 from datetime import datetime, timedelta
 
-quant_dias_p_exportar = 0
+quant_dias_p_exportar = 3 # Número de dias a serem exportados, incluindo o dia atual
 dia_escolhido = datetime.now() - timedelta(days=quant_dias_p_exportar)
 
 tipos_exportacao = ['diario']
-if dia_escolhido.weekday() == 4: 
+if dia_escolhido.weekday() == 4 or dia_escolhido.weekday() == 0: 
     tipos_exportacao.append('semanal')
 if (dia_escolhido + timedelta(days=1)).month != dia_escolhido.month:
     tipos_exportacao.append('mensal')
@@ -15,9 +15,9 @@ if (dia_escolhido + timedelta(days=1)).month != dia_escolhido.month:
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
 
-from helpers.helpers_exportacao_relatorio.helper_extracao_p_relatorio import extrair_carregamentos_generico
-from helpers.helpers_exportacao_relatorio.helper_prazo_p_exportar import dia_p_exportar 
-from helpers.helpers_exportacao_relatorio.helper_gerador_de_graficos import criar_grafico_exportacao_carregamentos 
+from utils.helpers_exportacao_relatorio.helper_extracao_p_relatorio import extrair_carregamentos_generico
+from utils.helpers_exportacao_relatorio.helper_prazo_p_exportar import dia_p_exportar 
+from utils.helpers_exportacao_relatorio.helper_gerador_de_graficos import criar_grafico_exportacao_carregamentos 
 
 for tipo_exportacao in tipos_exportacao:
     if tipo_exportacao == 'diario':
@@ -46,8 +46,8 @@ for tipo_exportacao in tipos_exportacao:
         nome_arquivo_xlsx = f"carregamentos_{inicio_periodo.strftime('%Y-%m-%d')}_a_{fim_periodo.strftime('%Y-%m-%d')}.xlsx"
         nome_arquivo_pdf = f"carregamentos_{inicio_periodo.strftime('%Y-%m-%d')}_a_{fim_periodo.strftime('%Y-%m-%d')}.pdf"
 
-        CAMINHO_SAIDA_XLSX = BASE_DIR / "output" / tipo_exportacao / "out_xlsx" / nome_arquivo_xlsx
-        CAMINHO_SAIDA_pdf = BASE_DIR / "output" / tipo_exportacao / "out_pdf" / nome_arquivo_pdf 
+        CAMINHO_SAIDA_XLSX = BASE_DIR / "data" / "output" / tipo_exportacao / "out_xlsx" / nome_arquivo_xlsx
+        CAMINHO_SAIDA_pdf = BASE_DIR / "data" / "output" / tipo_exportacao / "out_pdf" / nome_arquivo_pdf 
         caminho_consolidado = BASE_DIR / "data" / "consolidado_viagens.xlsx"
 
         titulo_subtotal, titulo_total = obter_titulos_por_tipo(tipo_exportacao)
