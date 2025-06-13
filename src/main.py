@@ -15,9 +15,9 @@ if (dia_escolhido + timedelta(days=1)).month != dia_escolhido.month:
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
 
-from utils.helpers_exportacao_relatorio.helper_extracao_p_relatorio import extrair_carregamentos_generico
-from utils.helpers_exportacao_relatorio.helper_prazo_p_exportar import dia_p_exportar 
-from utils.helpers_exportacao_relatorio.helper_gerador_de_graficos import criar_grafico_exportacao_carregamentos 
+from utils.helper_extracao_p_relatorio import extrair_carregamentos_generico
+from utils.helper_prazo_p_exportar import dia_p_exportar 
+from utils.helper_gerador_de_graficos import criar_grafico_exportacao_carregamentos 
 
 for tipo_exportacao in tipos_exportacao:
     if tipo_exportacao == 'diario':
