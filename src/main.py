@@ -81,3 +81,4 @@ for tipo_exportacao in tipos_exportacao:
 
             df_consolidado.to_excel(CAMINHO_SAIDA_XLSX, index=False)
             print(f"\nDados do dia anterior salvos em {CAMINHO_SAIDA_XLSX}!\n===============================\n")
+            
