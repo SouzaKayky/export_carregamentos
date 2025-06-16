@@ -153,13 +153,4 @@ criar_grafico_exportacao_carregamentos(
 
 ---
 
-## Contato
 
-Para dúvidas ou sugestões, abra uma issue ou entre em contato.
-
----
-
-**Desenvolvido por Kayky Soares**  
-Futuro Cara de TI | Ciência da Computação | Automação & Análise de Dados
-
----
